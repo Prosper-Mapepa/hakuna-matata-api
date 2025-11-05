@@ -64,7 +64,7 @@ The server will run on `http://localhost:3001` by default.
 4. **Configure Environment Variables**
    - In your **app service** settings, go to "Variables"
    - Add the following environment variables:
-     - `FRONTEND_URL` - Your frontend URL (e.g., `https://your-frontend-domain.com`)
+     - `FRONTEND_URL` - Set to `https://ddeventsitalia.netlify.app` (your frontend URL)
      - `ADMIN_PASSWORD` - Your admin password for accessing RSVPs
      - `DATABASE_URL` - Should already be set automatically by Railway
      - `PORT` - Railway sets this automatically (usually not needed)
@@ -105,7 +105,7 @@ railway run npx prisma migrate deploy
 Required environment variables for Railway:
 - `DATABASE_URL` - Automatically provided by Railway PostgreSQL service
 - `PORT` - Automatically set by Railway (defaults to port provided by Railway)
-- `FRONTEND_URL` - Your frontend URL for CORS configuration
+- `FRONTEND_URL` - Your frontend URL: `https://ddeventsitalia.netlify.app`
 - `ADMIN_PASSWORD` - Admin password for RSVP access
 
 ### Troubleshooting
