@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "rsvps" ALTER COLUMN "phone" DROP NOT NULL,
+ALTER COLUMN "guests" DROP NOT NULL;
