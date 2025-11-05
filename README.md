@@ -42,40 +42,41 @@ The server will run on `http://localhost:3001` by default.
 
 ### Deployment Steps
 
+**Important**: You don't need to manually create the database. Railway creates it automatically.
+
 1. **Create a New Project on Railway**
    - Log in to Railway dashboard
    - Click "New Project"
-   - Select "Deploy from GitHub repo" (or your Git provider)
-   - Choose this repository
+   - Select "Empty Project" (or deploy from GitHub later)
 
-2. **Add PostgreSQL Database**
+2. **Add PostgreSQL Database FIRST** ⚠️
    - In your Railway project, click "+ New"
    - Select "Database" → "Add PostgreSQL"
-   - Railway will automatically provision a PostgreSQL database and set the `DATABASE_URL` environment variable
+   - Railway will automatically create the database and set `DATABASE_URL`
+   - **Do this BEFORE deploying your app** to ensure proper connection
 
-3. **Configure Environment Variables**
-   - In your Railway service settings, go to "Variables"
+3. **Deploy Your Application**
+   - Click "+ New" → "GitHub Repo" → Select this repository
+   - Railway will automatically detect it's a Node.js app
+   - Railway automatically shares `DATABASE_URL` from the PostgreSQL service
+   - The app will build and deploy automatically
+
+4. **Configure Environment Variables**
+   - In your **app service** settings, go to "Variables"
    - Add the following environment variables:
-     - `PORT` - Railway will set this automatically, but you can leave it as `3001` if needed
      - `FRONTEND_URL` - Your frontend URL (e.g., `https://your-frontend-domain.com`)
      - `ADMIN_PASSWORD` - Your admin password for accessing RSVPs
-     - `DATABASE_URL` - Automatically set by Railway when you add PostgreSQL
+     - `DATABASE_URL` - Should already be set automatically by Railway
+     - `PORT` - Railway sets this automatically (usually not needed)
 
-4. **Run Database Migrations**
-   - Railway will automatically build and deploy your application
-   - After the first deployment, open the Railway service logs
-   - Run migrations manually using Railway CLI or add a deploy hook:
-     ```bash
-     npx prisma migrate deploy
-     ```
-   - Alternatively, you can add this as a deploy command in Railway settings
-
-5. **Deploy**
-   - Railway will automatically detect your Node.js application
+5. **Migrations Run Automatically** ✅
+   - Migrations run automatically on each deployment (configured in `railway.json`)
+   - Check deployment logs to verify migrations ran successfully
    - The build process will:
      - Install dependencies
      - Generate Prisma client (via `postinstall` script)
      - Build the NestJS application
+     - Run database migrations (`prisma migrate deploy`)
      - Start the production server
 
 ### Railway CLI (Alternative Method)
@@ -109,8 +110,30 @@ Required environment variables for Railway:
 
 ### Troubleshooting
 
-- **Database connection issues**: Ensure `DATABASE_URL` is correctly set and the PostgreSQL service is running
+- **No tables created**: Migrations should run automatically. If tables are missing:
+  1. Check deployment logs for migration errors
+  2. Verify `DATABASE_URL` is set in your app service variables
+  3. Ensure PostgreSQL service is running
+  4. Manually run migrations: `railway run npx prisma migrate deploy` (see Railway CLI section)
+
+- **Database connection issues**: 
+  - Ensure PostgreSQL service is created BEFORE the app service
+  - Verify `DATABASE_URL` is visible in your app service's "Variables" tab
+  - Both services must be in the same Railway project
+
 - **Build failures**: Check that all dependencies are in `package.json` (not `devDependencies` for production)
-- **Migration errors**: Run `npx prisma migrate deploy` manually after deployment
+
+- **Migration errors**: 
+  - Check logs for specific error messages
+  - Ensure Prisma CLI is available (it's in dependencies)
+  - Run manually: `railway run npx prisma migrate deploy`
+
 - **Port issues**: Railway automatically sets `PORT`, but ensure your app uses `process.env.PORT`
+
+### If You Need to Redo the Deployment
+
+1. Delete the current app service (keep the PostgreSQL service)
+2. Create a new app service from GitHub
+3. Railway will automatically connect to the existing PostgreSQL service
+4. Migrations will run automatically on deployment
 
